@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VFX Check – Is it good enough to post?</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f5f4f1;--card:#fff;--ink:#17161a;--mute:#6b6874;--line:#e2dfe8;--acc:#6d4aff;--good:#12a05c;--warn:#d98a00;--bad:#d9382f}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e0d12;--card:#17151e;--ink:#f1eff6;--mute:#9a96a8;--line:#2a2733;--acc:#9a82ff;--good:#3ddc97;--warn:#ffb340;--bad:#ff6a5f}}
+:root[data-theme="dark"]{--bg:#0e0d12;--card:#17151e;--ink:#f1eff6;--mute:#9a96a8;--line:#2a2733;--acc:#9a82ff;--good:#3ddc97;--warn:#ffb340;--bad:#ff6a5f}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Inter",system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:880px;margin:0 auto;padding:28px 18px 60px}
+h1{font-size:clamp(28px,6vw,44px);line-height:1.05;margin:6px 0 10px;letter-spacing:-.02em}
+h1 span{color:var(--acc)}
+.sub{color:var(--mute);margin:0 0 24px;max-width:560px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:16px}
+.drop{border:2px dashed var(--line);border-radius:14px;padding:34px 16px;text-align:center;cursor:pointer;color:var(--mute);transition:.15s}
+.drop:hover,.drop.on{border-color:var(--acc);color:var(--ink)}
+.drop b{display:block;color:var(--ink);font-size:18px;margin-bottom:4px}
+video{width:100%;max-height:380px;border-radius:12px;background:#000;display:block}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:14px}
+label{font-size:13px;color:var(--mute);display:block;margin-bottom:5px}
+select,textarea{width:100%;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit}
+textarea{min-height:70px;resize:vertical}
+button.go{width:100%;margin-top:16px;background:var(--acc);color:#fff;border:0;border-radius:12px;padding:14px;font:600 16px inherit;font-family:inherit;cursor:pointer}
+button.go:disabled{opacity:.5;cursor:not-allowed}
+.hint{font-size:13px;color:var(--mute);margin-top:10px}
+.hide{display:none}
+.vbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px;font-size:14px;color:var(--mute)}.vbar span{flex:1;min-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+button.sec{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:8px 14px;font:inherit;font-size:14px;cursor:pointer}button.danger{color:var(--bad);border-color:var(--bad)}
+.verdict{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.ring{width:96px;height:96px;border-radius:50%;display:grid;place-items:center;font-size:30px;font-weight:700;flex:none}
+.pill{display:inline-block;padding:4px 12px;border-radius:99px;font-weight:600;font-size:14px;color:#fff}
+.bars{display:grid;gap:12px;margin-top:6px}
+.bar .t{display:flex;justify-content:space-between;font-size:14px;margin-bottom:4px}
+.bar .b{height:8px;background:var(--bg);border-radius:9px;overflow:hidden}
+.bar .b i{display:block;height:100%;border-radius:9px;transition:width .8s}
+.issue{border-left:3px solid var(--warn);padding:2px 0 2px 12px;margin:14px 0}
+.issue small{color:var(--mute)}
+.issue .fix{color:var(--good)}
+h3{margin:0 0 10px;font-size:17px}
+.frames{display:flex;gap:6px;overflow-x:auto}
+.frames img{height:70px;border-radius:6px;flex:none}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;font-size:14px}
+.stats div{background:var(--bg);border-radius:10px;padding:8px 10px}.stats b{display:block;font-size:16px}
+ul{margin:0;padding-left:20px}
+.err{color:var(--bad)}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid #fff6;border-top-color:#fff;border-radius:50%;animation:s .7s linear infinite;vertical-align:-2px;margin-right:8px}
+@keyframes s{to{transform:rotate(360deg)}}
+</style></head>
+<body><div class="wrap">
+<h1>Is your shot <span>ready to post?</span></h1>
+<p class="sub">Upload a VFX or CG clip. Get an honest breakdown of compositing, tracking, lighting, realism and render quality, with timestamps and fixes.</p>
+
+<div class="card"><h3>Settings</h3>
+  <label>Anthropic API key (stays in your browser only)</label>
+  <input id="key" type="password" placeholder="sk-ant-..." autocomplete="off" style="width:100%;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit">
+  <label style="margin-top:10px">Or proxy URL (for a public site, so no key is exposed)</label>
+  <input id="proxy" type="url" placeholder="https://your-worker.workers.dev" style="width:100%;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit">
+  <div class="hint">Get a key at console.anthropic.com. It is saved only in this browser.</div></div>
+
+<div class="card">
+  <div class="drop" id="drop"><b>Drop a video here or tap to choose</b>MP4, MOV, WebM · best under 200 MB · stays in your browser</div>
+  <input type="file" id="file" accept="video/*" class="hide">
+  <video id="vid" class="hide" controls muted playsinline preload="auto"></video>
+  <div id="vbar" class="hide vbar"><span id="vname"></span><button class="sec" id="rep">Change video</button><button class="sec danger" id="rm">Remove video</button></div>
+  <div class="row">
+    <div><label>Type of work</label><select id="kind"><option>VFX (live action + effects)</option><option>CG / 3D render or animation</option><option>Mixed VFX + CG</option></select></div>
+    <div><label>Where will it be posted?</label><select id="dest"><option>Instagram / TikTok / Reels</option><option>YouTube</option><option>Portfolio / demo reel</option><option>Client delivery / film</option></select></div>
+    <div><label>Your level</label><select id="lvl"><option>Beginner</option><option>Intermediate</option><option>Professional</option></select></div>
+  </div>
+  <div style="margin-top:12px"><label>Your question (optional)</label><textarea id="q" placeholder="e.g. Does the fire look real? Is the tracking good enough to post?"></textarea></div>
+  <button class="go" id="go" disabled>Analyze my video</button>
+  <div class="hint" id="hint">Choose a video to begin.</div>
+</div>
+
+<div id="out" class="hide"></div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+let file=null;
+const drop=$('drop'),inp=$('file'),vid=$('vid'),go=$('go'),hint=$('hint'),out=$('out');
+drop.onclick=()=>inp.click();
+['dragover','dragenter'].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.add('on')}));
+['dragleave','drop'].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.remove('on')}));
+drop.addEventListener('drop',ev=>{if(ev.dataTransfer.files[0])pick(ev.dataTransfer.files[0])});
+inp.onchange=()=>inp.files[0]&&pick(inp.files[0]);
+function pick(f){
+  if(!(f.type.startsWith('video/')||/\.(mp4|mov|webm|m4v|mkv)$/i.test(f.name))){hint.textContent='Please choose a video file.';return}
+  if(vid.src)URL.revokeObjectURL(vid.src);
+  file=f;vid.src=URL.createObjectURL(f);vid.load();
+  vid.classList.remove('hide');drop.classList.add('hide');$('vbar').classList.remove('hide');$('vname').textContent=f.name+' · '+(f.size/1048576).toFixed(1)+' MB';
+  go.disabled=false;go.textContent='Analyze my video';hint.textContent='';out.classList.add('hide');
+}
+vid.onerror=()=>{hint.innerHTML='<span class="err">Your browser cannot play this file (iPhone .MOV / H.265 often fails). Convert it to MP4 (H.264) and try again, or remove it below.</span>'};
+function removeVideo(){
+  if(vid.src)URL.revokeObjectURL(vid.src);
+  vid.pause();vid.removeAttribute('src');vid.load();file=null;inp.value='';
+  vid.classList.add('hide');$('vbar').classList.add('hide');drop.classList.remove('hide');
+  out.classList.add('hide');out.innerHTML='';go.disabled=true;go.textContent='Analyze my video';hint.textContent='Choose a video to begin.';
+}
+$('rm').onclick=removeVideo;
+$('rep').onclick=()=>{inp.value='';inp.click()};
+function seek(v,t){return new Promise(r=>{let done=false;const h=()=>{if(done)return;done=true;v.removeEventListener('seeked',h);setTimeout(r,60)};v.addEventListener('seeked',h);setTimeout(h,4000);v.currentTime=t})}
+async function extract(n){
+  const v=document.createElement('video');v.muted=true;v.playsInline=true;v.preload='auto';v.src=vid.src;v.load();
+  await new Promise((r,j)=>{const to=setTimeout(()=>j(new Error('The video took too long to load. Try a shorter or smaller MP4.')),25000);
+    v.onloadeddata=()=>{clearTimeout(to);r()};v.onerror=()=>{clearTimeout(to);j(new Error('Could not read this video. Convert it to MP4 (H.264) and try again.'))}});
+  let d=v.duration;if(!isFinite(d)||!d)d=vid.duration;
+  if(!isFinite(d)||!d)throw new Error('Could not read the video length. Try re-exporting it as MP4.');
+  const W=v.videoWidth,H=v.videoHeight;
+  if(!W||!H)throw new Error('No picture found in this file (often H.265/HEVC). Convert to MP4 (H.264).');
+  const sc=Math.min(1,960/W);
+  const c=document.createElement('canvas');c.width=Math.round(W*sc);c.height=Math.round(H*sc);
+  const x=c.getContext('2d',{willReadFrequently:true});
+  const frames=[],stats=[];let prev=null,motion=[];
+  for(let i=0;i<n;i++){
+    const t=Math.min(d-.05,Math.max(0,d*(i+.5)/n));
+    await seek(v,t);x.drawImage(v,0,0,c.width,c.height);
+    const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.8));
+    frames.push({t,blob,url:URL.createObjectURL(blob)});
+    // small analysis
+    const s=document.createElement('canvas');s.width=160;s.height=Math.round(160*H/W);
+    const sx=s.getContext('2d',{willReadFrequently:true});sx.drawImage(v,0,0,s.width,s.height);
+    const px=sx.getImageData(0,0,s.width,s.height).data,L=[];
+    for(let k=0;k<px.length;k+=4)L.push(.299*px[k]+.587*px[k+1]+.114*px[k+2]);
+    let sum=0,dark=0,bright=0;L.forEach(l=>{sum+=l;if(l<12)dark++;if(l>245)bright++});
+    let lap=0,cnt=0;const w=s.width;
+    for(let y=1;y<s.height-1;y++)for(let xx=1;xx<w-1;xx++){const i2=y*w+xx;const e=4*L[i2]-L[i2-1]-L[i2+1]-L[i2-w]-L[i2+w];lap+=e*e;cnt++}
+    stats.push({luma:sum/L.length,dark:dark/L.length,bright:bright/L.length,sharp:lap/cnt});
+    if(prev){let df=0;for(let k=0;k<L.length;k++)df+=Math.abs(L[k]-prev[k]);motion.push(df/L.length)}
+    prev=L;
+  }
+  const avg=k=>stats.reduce((a,b)=>a+b[k],0)/stats.length;
+  return{frames,d,W,H,m:{luma:avg('luma'),dark:avg('dark'),bright:avg('bright'),sharp:avg('sharp'),lumaSwing:Math.max(...stats.map(s=>s.luma))-Math.min(...stats.map(s=>s.luma)),motion:motion.length?motion.reduce((a,b)=>a+b,0)/motion.length:0}};
+}
+const col=s=>s>=75?'var(--good)':s>=55?'var(--warn)':'var(--bad)';
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=t=>Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0');
+
+
+try{$('key').value=localStorage.getItem('vc_key')||'';$('proxy').value=localStorage.getItem('vc_proxy')||''}catch(e){}
+['key','proxy'].forEach(id=>$(id).addEventListener('change',()=>{try{localStorage.setItem('vc_'+id,$(id).value.trim())}catch(e){}}));
+async function callClaude(prompt,blobs){
+  const key=$('key').value.trim(),proxy=$('proxy').value.trim();
+  const imgs=await Promise.all(blobs.map(b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r({type:'image',source:{type:'base64',media_type:'image/jpeg',data:f.result.split(',')[1]}});f.readAsDataURL(b)})));
+  const headers={'content-type':'application/json'};
+  if(!proxy){headers['x-api-key']=key;headers['anthropic-version']='2023-06-01';headers['anthropic-dangerous-direct-browser-access']='true'}
+  const res=await fetch(proxy||'https://api.anthropic.com/v1/messages',{method:'POST',headers,body:JSON.stringify({model:'claude-sonnet-5-5',max_tokens:2000,messages:[{role:'user',content:[...imgs,{type:'text',text:prompt}]}]})});
+  const j=await res.json();
+  if(!res.ok)throw new Error((j.error&&j.error.message)||('API error '+res.status));
+  const t=j.content.filter(c=>c.type==='text').map(c=>c.text).join('');
+  return JSON.parse(t.replace(/```json|```/g,'').trim());
+}
+go.onclick=async()=>{
+  go.disabled=true;go.innerHTML='<span class="spin"></span>Reading frames…';out.classList.add('hide');
+  try{
+    if(!$('key').value.trim()&&!$('proxy').value.trim())throw new Error('Add your Anthropic API key (or a proxy URL) in Settings first.');
+    const e=await extract(8);
+    go.innerHTML='<span class="spin"></span>Claude is studying your shot…';
+    const info={duration_s:+e.d.toFixed(1),resolution:e.W+'x'+e.H,avg_brightness_0_255:+e.m.luma.toFixed(0),brightness_swing:+e.m.lumaSwing.toFixed(0),crushed_blacks_pct:+(e.m.dark*100).toFixed(1),blown_highlights_pct:+(e.m.bright*100).toFixed(1),sharpness_index:+e.m.sharp.toFixed(0),avg_frame_change:+e.m.motion.toFixed(1)};
+    const times=e.frames.map((f,i)=>'Image '+(i+1)+' = '+f.t.toFixed(1)+'s').join('; ');
+    const prompt=`You are a senior VFX supervisor giving an honest, constructive critique. The attached images are 8 evenly spaced frames from one clip (${times}).
+Work type: ${$('kind').value}. Posting destination: ${$('dest').value}. Creator level: ${$('lvl').value}.
+Measured stats: ${JSON.stringify(info)}.
+Creator question: ${$('q').value||'(none) Is this good enough to post?'}
+Judge only what you can see; say so if frames can't show something (e.g. motion tracking from stills, so infer from frame-to-frame differences). Be specific, not generic. Calibrate to the destination and level.
+Return ONLY JSON: {"overall":0-100,"verdict":"Ready to post"|"Almost there"|"Needs work","summary":"2 sentences","answer":"direct answer to the creator's question in 2-4 sentences","scores":[{"name":"Compositing & edges","score":0-100,"note":"short"},{"name":"Tracking & stability","score":..,"note":..},{"name":"Lighting & shadows","score":..,"note":..},{"name":"Color match & grade","score":..,"note":..},{"name":"Realism & motion","score":..,"note":..},{"name":"Render & artifacts","score":..,"note":..}],"strengths":["..",".."],"issues":[{"time":"seconds as number or null","problem":"..","fix":"concrete fix"}],"quick_wins":["..",".."]}`;
+    const r=await callClaude(prompt,e.frames.map(f=>f.blob));
+    render(r,e,info);
+  }catch(err){
+    out.classList.remove('hide');out.innerHTML='<div class="card err">'+esc(err.message||err.code||'Something went wrong.')+(err.code==='rate_limited'?' Please wait a moment and try again.':'')+'</div>';
+  }
+  go.disabled=false;go.textContent='Analyze again';
+};
+function render(r,e,info){
+  const c=col(r.overall),vc=r.overall>=75?'var(--good)':r.overall>=55?'var(--warn)':'var(--bad)';
+  out.classList.remove('hide');
+  out.innerHTML=`
+  <div class="card"><div class="verdict">
+    <div class="ring" style="border:8px solid ${c};color:${c}">${esc(r.overall)}</div>
+    <div style="flex:1;min-width:220px"><span class="pill" style="background:${vc}">${esc(r.verdict)}</span>
+    <p style="margin:8px 0 0">${esc(r.summary)}</p></div></div>
+    ${r.answer?`<p style="margin:14px 0 0;padding-top:14px;border-top:1px solid var(--line)"><b>Your question:</b> ${esc(r.answer)}</p>`:''}
+  </div>
+  <div class="card"><h3>Breakdown</h3><div class="bars">${(r.scores||[]).map(s=>`<div class="bar"><div class="t"><span>${esc(s.name)}</span><b style="color:${col(s.score)}">${esc(s.score)}</b></div><div class="b"><i style="width:0;background:${col(s.score)}" data-w="${+s.score||0}"></i></div><small style="color:var(--mute)">${esc(s.note)}</small></div>`).join('')}</div></div>
+  ${(r.issues||[]).length?`<div class="card"><h3>What to fix</h3>${r.issues.map(i=>`<div class="issue">${i.time!=null&&i.time!==''?`<small>~${fmt(+i.time||0)}</small><br>`:''}${esc(i.problem)}<br><span class="fix">Fix: ${esc(i.fix)}</span></div>`).join('')}</div>`:''}
+  <div class="card"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px">
+    <div><h3>Strengths</h3><ul>${(r.strengths||[]).map(s=>`<li>${esc(s)}</li>`).join('')}</ul></div>
+    <div><h3>Quick wins</h3><ul>${(r.quick_wins||[]).map(s=>`<li>${esc(s)}</li>`).join('')}</ul></div></div></div>
+  <div class="card"><h3>Frames analysed</h3><div class="frames">${e.frames.map(f=>`<img src="${f.url}" alt="frame at ${f.t.toFixed(1)}s">`).join('')}</div>
+  <div class="stats" style="margin-top:12px"><div>Resolution<b>${e.W}×${e.H}</b></div><div>Length<b>${fmt(e.d)}</b></div><div>Avg brightness<b>${info.avg_brightness_0_255}/255</b></div><div>Crushed blacks<b>${info.crushed_blacks_pct}%</b></div><div>Blown highlights<b>${info.blown_highlights_pct}%</b></div></div>
+  <p class="hint">AI feedback is a guide based on sampled frames, not a final verdict. Check the full clip at full speed before posting.</p></div>`;
+  requestAnimationFrame(()=>out.querySelectorAll('[data-w]').forEach(b=>b.style.width=b.dataset.w+'%'));
+  out.scrollIntoView({behavior:'smooth'});
+}
+</script></body></html>
